@@ -1,58 +1,108 @@
+
 libros = {
     'L001': ['Sombras del Sur', 'A. Rojas', 'novela', 2019, 'AndesPress', False],
+
     'L002': ['Python en Ruta', 'M. Diaz', 'tecnología', 2023, 'CodeBooks', True],
+
     'L003': ['Mar y Viento', 'C. Silva', 'poesía', 2017, 'Litoral', False],
+
     'L004': ['Historia Breve', 'J. Pérez', 'historia', 2015, 'Cronos', False],
+
     'L005': ['Mundos Lejanos', 'L. Torres', 'ciencia ficción', 2021, 'Orión', True],
-    'L006': ['Cocina Simple', 'R. Soto', 'cocina', 2018, 'Sabores', False],
+
+    'L006': ['Cocina Simple', 'R. Soto', 'cocina', 2018, 'Sabores', False]
 }
 
 prestamos = {
+
     'L001': [500, 4],
+
     'L002': [700, 0],
+
     'L003': [300, 10],
+
     'L004': [400, 2],
+
     'L005': [600, 1],
-    'L006': [350, 6],
+
+    'L006': [350, 6]
+
 }
+
+def validar_codigo(codigo):
+    return codigo.strip() != ""
+
+def validar_titulo(titulo):
+    return titulo.strip() != ""
+
+def validar_autor(autor):
+    return autor.strip() != ""
+
+def validar_genero(genero):
+    return genero.strip() != ""
+
+def validar_anio(anio):
+    return anio.isdigit() and int(anio) > 0
+
+def validar_editorial(editorial):
+    return editorial.strip() != ""
+
+def validar_novedad(novedad):
+    return novedad.strip().lower() in ("s", "n")
+
+def validar_multa(multa):
+    return multa.isdigit() and int(multa) > 0
+
+def validar_copias(copias):
+    return copias.isdigit() and int(copias) >= 0
+    
+def mostrar_menu():
+    print("\n========== MENÚ PRINCIPAL ==========")
+    print("1. Copias por género")
+    print("2. Búsqueda de libros por rango de multa")
+    print("3. Actualizar multa de libro")
+    print("4. Agregar libro")
+    print("5. Eliminar libro")
+    print("6. Salir")
+    print("=====================================")
+    
+def leer_opcion():
+    while True:
+        opcion = input("Ingrese opcion: ")
+        if opcion.isdigit() and 1 <= int(opcion) <= 6:
+            return int(opcion)
+        print("Debe seleccionar una opcion valida")
+        
 def copias_genero(genero):
     total = 0
-    genero = genero.lower()
-
-    for codigo in libros:
-        if libros[codigo][2].lower() == genero:
+    for codigo, datos in libros.items():
+        if datos[2].lower() == genero.lower():
             total += prestamos[codigo][1]
-    print(f"El total de copias es: {total}")
+    print(f"El total de copias disponibles es: {total}")
 
 def busqueda_multa(multa_min, multa_max):
-    lista = []
-    for codigo in prestamos:
-        multa = prestamos[codigo][0]
-        copias = prestamos[codigo][1]
+    encontrados = []
+    for codigo, datos in prestamos.items():
+        multa = datos[0]
+        copias = datos[1]
         if multa_min <= multa <= multa_max and copias != 0:
             titulo = libros[codigo][0]
-            lista.append(titulo + "--" + codigo)
-
-    lista.sort()
-    if len(lista) == 0:
-        print("No hay libros en ese rango de multa.")
+            encontrados.append(f"{titulo}--{codigo}")
+    encontrados.sort()
+    if encontrados:
+        print(f"Los libros encontrados son: {encontrados}")
     else:
-        print(f"Los libros encontrados son: {lista}")
-
+        print("No hay libros en ese rango de multa.")
 
 def actualizar_multa(codigo, nueva_multa):
-    codigo = codigo.upper()
-    if codigo in prestamos:
-        prestamos[codigo][0] = nueva_multa
-        return True
-    else:
+    codigo = codigo.strip().upper()
+    if codigo not in prestamos:
         return False
+    prestamos[codigo][0] = nueva_multa
+    return True
 
-
-def agregar_libro(codigo, titulo, autor, genero, anio, editorial,
-                  es_novedad, precio_multa, copias_disponibles):
-
-    codigo = codigo.upper()
+def agregar_libro(codigo, titulo, autor, genero, anio, editorial, es_novedad, multa, copias):
+    codigo = codigo.strip().upper()
     if codigo in libros:
         return False
     libros[codigo] = [
@@ -64,205 +114,121 @@ def agregar_libro(codigo, titulo, autor, genero, anio, editorial,
         es_novedad
     ]
     prestamos[codigo] = [
-        precio_multa,
-        copias_disponibles
+        multa,
+        copias
     ]
     return True
-
+    
 def eliminar_libro(codigo):
-    codigo = codigo.upper()
-
-    if codigo in libros:
-        del libros[codigo]
-        del prestamos[codigo]
-        return True
-    else:
+    codigo = codigo.strip().upper()
+    if codigo not in libros:
         return False
-
-def validar_codigo(codigo):
-    codigo = codigo.strip()
-    if codigo == "":
-        return False
-    if codigo.upper() in libros:
-        return False
+    del libros[codigo]
+    del prestamos[codigo]
     return True
-
-def validar_texto(texto):
-    return texto.strip() != ""
-
-def validar_anio(anio):
-    return anio > 0
-
-def validar_novedad(valor):
-    return valor.lower() == "s" or valor.lower() == "n"
-
-def validar_multa(multa):
-    return multa > 0
-
-def validar_copias(copias):
-    return copias >= 0
-
+    
 while True:
-    print("\n========== MENÚ PRINCIPAL ==========")
-    print("1. Copias por género")
-    print("2. Búsqueda de libros por rango de multa")
-    print("3. Actualizar multa de libro")
-    print("4. Agregar libro")
-    print("5. Eliminar libro")
-    print("6. Salir")
-    print("=====================================")
-
-    opcion = input("Ingrese opcion: ")
-    if opcion == "1":
+    mostrar_menu()
+    opcion = leer_opcion()
+    if opcion == 1:
         genero = input("Ingrese genero a consultar: ")
         copias_genero(genero)
 
-    elif opcion == "2":
+    elif opcion == 2:
         while True:
             try:
                 multa_min = int(input("Ingrese multa minima: "))
                 multa_max = int(input("Ingrese multa maxima: "))
-                if multa_min >= 0 and multa_max >= 0 and multa_min <= multa_max:
-                    break
-                else:
-                    print("Debe ingresar un rango valido.")
-            except:
+                if multa_min < 0 or multa_max < 0 or multa_min > multa_max:
+                    print("Debe ingresar valores enteros")
+                    continue
+                break
+            except ValueError:
                 print("Debe ingresar valores enteros")
         busqueda_multa(multa_min, multa_max)
-
-    elif opcion == "3":
+    elif opcion == 3:
         while True:
-            codigo = input("Ingrese codigo del libro: ").upper()
-            while True:
-                try:
-                    nueva_multa = int(input("Ingrese nueva multa: "))
-                    if nueva_multa > 0:
-                        break
-                    else:
-                        print("La multa debe ser positiva.")
-                except:
-                    print("Debe ingresar un numero entero.")
-            if actualizar_multa(codigo, nueva_multa):
-                print("Multa actualizada")
+            codigo = input("Ingrese codigo del libro: ")
+            nueva_multa = input("Ingrese nueva multa: ")
+            if not validar_multa(nueva_multa):
+                print("La multa debe ser un número entero positivo")
             else:
-                print("El codigo no existe")
-            repetir = input("¿Desea actualizar otra multa (s/n)?: ").lower()
-            if repetir == "n":
+                actualizado = actualizar_multa(
+                    codigo,
+                    int(nueva_multa)
+                )
+                if actualizado:
+                    print("Multa actualizada")
+                else:
+                    print("El codigo no existe")
+            respuesta = input("¿Desea actualizar otra multa (s/n)?: ")
+            if respuesta.lower() != "s":
                 break
-
-    elif opcion == "4":
-        codigo = input("Ingrese codigo del libro: ").upper()
+                
+    elif opcion == 4:
+        codigo = input("Ingrese codigo del libro: ")
         if not validar_codigo(codigo):
-            print("Codigo invalido o ya existe.")
+            print("Codigo invalido")
             continue
         titulo = input("Ingrese titulo: ")
-        if not validar_texto(titulo):
-            print("Titulo invalido.")
+        if not validar_titulo(titulo):
+            print("Titulo invalido")
             continue
         autor = input("Ingrese autor: ")
-        if not validar_texto(autor):
-            print("Autor invalido.")
+        if not validar_autor(autor):
+            print("Autor invalido")
             continue
         genero = input("Ingrese genero: ")
-        if not validar_texto(genero):
-            print("Genero invalido.")
+        if not validar_genero(genero):
+            print("Género invalido")
             continue
-        try:
-            anio = int(input("Ingrese año de publicación: "))
-        except:
-            print("Año invalido.")
-            continue
+        anio = input("Ingrese año de publicacion: ")
         if not validar_anio(anio):
-            print("Año invalido.")
+            print("Año invalido")
             continue
         editorial = input("Ingrese editorial: ")
-        if not validar_texto(editorial):
-            print("Editorial invalida.")
+        if not validar_editorial(editorial):
+            print("Editorial invalida")
             continue
-        novedad = input("¿Es novedad? (s/n): ").lower()
+        novedad = input("¿Es novedad? (s/n): ")
         if not validar_novedad(novedad):
-            print("Valor invalido.")
+            print("Debe ingresar s o n")
             continue
-        es_novedad = novedad == "s"
-        try:
-            multa = int(input("Ingrese precio de multa: "))
-        except:
-            print("Multa invalida.")
-            continue
+        multa = input("Ingrese precio de multa: ")
         if not validar_multa(multa):
-            print("Multa invalida.")
+            print("Multa invalida")
             continue
-        try:
-            copias = int(input("Ingrese copias disponibles: "))
-        except:
-            print("Cantidad invalida.")
-            continue
+        copias = input("Ingrese copias disponibles: ")
         if not validar_copias(copias):
-            print("Cantidad invalida.")
+            print("Copias invalidas")
             continue
-        if agregar_libro(codigo, titulo, autor, genero, anio,
-                         editorial, es_novedad, multa, copias):
+        agregado = agregar_libro(
+            codigo,
+            titulo,
+            autor,
+            genero,
+            int(anio),
+            editorial,
+            novedad.lower() == "s",
+            int(multa),
+            int(copias)
+        )
+        if agregado:
             print("Libro agregado")
         else:
-            print("El codigo ya existe")
+            print("El código ya existe")
 
-    elif opcion == "5":
-        codigo = input("Ingrese codigo del libro: ").upper()
-        if eliminar_libro(codigo):
+    elif opcion == 5:
+        codigo = input("Ingrese codigo del libro: ")
+        eliminado = eliminar_libro(codigo)
+        if eliminado:
             print("Libro eliminado")
         else:
             print("El codigo no existe")
 
-    elif opcion == "6":
+    elif opcion == 6:
         print("Programa finalizado.")
         break
+        
     else:
-        print("Debe seleccionar una opcion valida")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        print("Igrese una opcionvalida")
